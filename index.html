@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工位 No.404 · 无期徒刑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0810;
+    --ink2:#140f1c;
+    --steel:#2a2434;
+    --steel-lt:#3d3650;
+    --crt:#6ef58a;
+    --crt-dim:#2f7a46;
+    --amber:#f2a93b;
+    --red:#e4443a;
+    --bone:#e6e2d3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(120% 90% at 50% 8%, #1b1626 0%, #0a0810 55%, #050408 100%),
+      var(--ink);
+    color:var(--bone);
+    font-family:"Silkscreen",ui-monospace,SFMono-Regular,Menlo,monospace;
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    padding:28px 16px 40px;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+    background-size:28px 28px;
+    mask-image:radial-gradient(70% 60% at 50% 45%, #000 0%, transparent 100%);
+  }
+
+  /* ---------- header ---------- */
+  .head{position:relative;z-index:2;text-align:center;line-height:1.5}
+  .head .eyebrow{
+    font-size:11px;letter-spacing:.34em;color:var(--crt-dim);
+    text-transform:uppercase;
+  }
+  .head h1{
+    font-size:clamp(20px,3.4vw,34px);
+    letter-spacing:.1em;
+    color:var(--bone);
+    text-shadow:3px 3px 0 #000, 0 0 22px rgba(110,245,138,.18);
+  }
+  .head h1 b{color:var(--crt)}
+  .head .sub{
+    margin-top:6px;font-size:11px;letter-spacing:.22em;color:#6b6480;
+  }
+
+  /* ---------- the machine ---------- */
+  .rig{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+  .bezel{
+    position:relative;
+    padding:16px 16px 18px;
+    border-radius:14px 14px 10px 10px;
+    background:
+      linear-gradient(180deg,#5a5366 0%,#3a3446 18%,#241f30 72%,#19151f 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.22),
+      inset 0 -3px 0 rgba(0,0,0,.6),
+      0 2px 0 #0b0810,
+      0 26px 60px -18px rgba(0,0,0,.95),
+      0 0 0 2px #0e0b14;
+  }
+  .bezel::after{ /* bezel screws */
+    content:"";position:absolute;inset:7px;border-radius:10px;
+    border:1px solid rgba(0,0,0,.45);pointer-events:none;
+  }
+  .glass{
+    position:relative;
+    border-radius:8px;
+    overflow:hidden;
+    background:#05060a;
+    box-shadow:inset 0 0 0 3px #0b0a12, inset 0 0 36px 10px rgba(0,0,0,.9);
+    line-height:0;
+  }
+  canvas{
+    display:block;
+    width:min(92vw,900px);
+    height:auto;
+    image-rendering:pixelated;
+    image-rendering:crisp-edges;
+    filter:saturate(1.08) contrast(1.04);
+  }
+  .glass .scan,.glass .vig,.glass .grain,.glass .bloom{
+    position:absolute;inset:0;pointer-events:none;
+  }
+  .scan{
+    background:repeating-linear-gradient(
+      180deg,
+      rgba(0,0,0,.34) 0px, rgba(0,0,0,.34) 1px,
+      rgba(0,0,0,0) 1px, rgba(0,0,0,0) 3px);
+    mix-blend-mode:multiply;opacity:.75;
+  }
+  .bloom{
+    background:radial-gradient(60% 45% at 50% 40%, rgba(130,255,170,.09), transparent 70%);
+    mix-blend-mode:screen;
+  }
+  .vig{
+    background:radial-gradient(118% 110% at 50% 50%, transparent 52%, rgba(0,0,0,.78) 100%);
+  }
+  .grain{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='.5'/></svg>");
+    opacity:.1;mix-blend-mode:overlay;
+    animation:grainShift .5s steps(2,end) infinite;
+  }
+  @keyframes grainShift{
+    0%{transform:translate(0,0)} 50%{transform:translate(-3px,2px)} 100%{transform:translate(2px,-3px)}
+  }
+  .flickr{
+    position:absolute;inset:0;pointer-events:none;background:#9effb7;
+    opacity:0;mix-blend-mode:screen;
+    animation:flick 7s steps(1,end) infinite;
+  }
+  @keyframes flick{
+    0%,96%{opacity:0} 96.5%{opacity:.05} 97%{opacity:0} 98%{opacity:.03} 98.4%{opacity:0}
+  }
+
+  /* ---------- plate / controls ---------- */
+  .plate{
+    margin-top:-2px;
+    width:min(92vw,900px);
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+    padding:10px 12px;
+    background:linear-gradient(180deg,#2b2536,#17131f);
+    border:1px solid #0d0a12;
+    border-top:1px solid rgba(255,255,255,.1);
+    border-radius:0 0 10px 10px;
+    box-shadow:0 14px 30px -16px rgba(0,0,0,.9);
+  }
+  .tag{
+    font-size:10px;letter-spacing:.18em;color:#7c7494;
+    border:1px dashed #3b3450;padding:5px 8px;border-radius:3px;
+    white-space:nowrap;
+  }
+  .tag b{color:var(--amber)}
+  .spacer{flex:1}
+  button{
+    font-family:inherit;font-size:11px;letter-spacing:.12em;
+    color:#f0ecdd;cursor:pointer;
+    padding:8px 12px;
+    border:1px solid #0b0810;
+    border-radius:3px;
+    background:linear-gradient(180deg,#4b4360,#2c2639);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 3px 0 #0b0810;
+    transition:transform .07s steps(2), background .15s;
+  }
+  button:hover{background:linear-gradient(180deg,#5c5376,#342d45)}
+  button:active{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 0 #0b0810}
+  button.hot{
+    background:linear-gradient(180deg,#8c3a33,#5c231e);
+    color:#ffd9d2;
+  }
+  button.hot:hover{background:linear-gradient(180deg,#a2443b,#6d2a24)}
+  .foot{
+    position:relative;z-index:2;
+    font-size:10px;letter-spacing:.2em;color:#514a63;text-align:center;line-height:1.9;
+  }
+  .foot kbd{
+    color:#8d84a8;border:1px solid #302a40;border-bottom-width:2px;
+    padding:1px 5px;border-radius:3px;background:#1a1624;
+  }
+  @media (max-width:560px){
+    .plate{justify-content:center}
+    .spacer{display:none}
+  }
+</style>
+</head>
+<body>
+
+  <div class="head">
+    <div class="eyebrow">cubicle penitentiary &nbsp;/&nbsp; block 404</div>
+    <h1>工位 <b>无期徒刑</b></h1>
+    <div class="sub">A LOOP WITH NO PAROLE</div>
+  </div>
+
+  <div class="rig">
+    <div class="bezel">
+      <div class="glass">
+        <canvas id="screen" width="960" height="720" aria-label="像素动画：打工人在工位上坐牢到发疯的循环"></canvas>
+        <div class="bloom"></div>
+        <div class="scan"></div>
+        <div class="grain"></div>
+        <div class="flickr"></div>
+        <div class="vig"></div>
+      </div>
+    </div>
+    <div class="plate">
+      <span class="tag">囚号 <b>#404</b></span>
+      <span class="tag">刑期 <b>无期</b></span>
+      <span class="tag" id="dayTag">第 <b>1</b> 日</span>
+      <span class="spacer"></span>
+      <button id="btnTask">+1 需求</button>
+      <button id="btnLeave" class="hot">申请下班</button>
+      <button id="btnPause">暂停</button>
+    </div>
+  </div>
+
+  <div class="foot">
+    点屏幕也能扔需求 · <kbd>空格</kbd> 暂停 · <kbd>R</kbd> 重新入狱<br>
+    每循环一次，墙上多一道刻痕。
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ================= setup ================= */
+  const W = 240, H = 180, S = 4;           // logical pixels, scale
+  const cv = document.getElementById('screen');
+  cv.width = W * S; cv.height = H * S;
+  const ctx = cv.getContext('2d', { alpha: false });
+  ctx.imageSmoothingEnabled = false;
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+
+  /* ================= palette ================= */
+  const P = {
+    void:    '#07060b',
+    wallD:   '#241f33',
+    wall:    '#322b45',
+    wallL:   '#3e3655',
+    wallHi:  '#4a4165',
+    grime:   '#1d1829',
+    floorD:  '#1a1626',
+    floor:   '#262036',
+    floorL:  '#312a42',
+    deskD:   '#3b2a21',
+    desk:    '#5c4130',
+    deskL:   '#7a5640',
+    deskHi:  '#9a7154',
+    metalD:  '#2b2a36',
+    metal:   '#464455',
+    metalL:  '#6a6880',
+    skinD:   '#a9643f',
+    skin:    '#d99a68',
+    skinL:   '#f3c396',
+    hair:    '#2b1d22',
+    hairL:   '#44303a',
+    shirtD:  '#2f5873',
+    shirt:   '#4682a4',
+    shirtL:  '#69a6c4',
+    tie:     '#8d3a46',
+    tieL:    '#b24c58',
+    white:   '#ece7d6',
+    bone:    '#cfc8b6',
+    gray:    '#8c86a0',
+    crt:     '#6ef58a',
+    crtD:    '#2a7a44',
+    amber:   '#f2a93b',
+    amberD:  '#a06c1e',
+    red:     '#e4443a',
+    redD:    '#8e2a26',
+    blood:   '#ff6b5c',
+    leaf:    '#4e8f5c',
+    leafD:   '#2f5e3c',
+    leafDry: '#8a7a3c',
+    paper:   '#d8d2bd',
+    paperD:  '#a39d89',
+    shadow:  'rgba(0,0,0,.35)',
+  };
+
+  /* ================= pixel helpers ================= */
+  const fr = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x | 0, y | 0, w, h); };
+  const pt = (x, y, c) => fr(x, y, 1, 1, c);
+  function box(x, y, w, h, c) { fr(x, y, w, 1, c); fr(x, y + h - 1, w, 1, c); fr(x, y, 1, h, c); fr(x + w - 1, y, 1, h, c); }
+  function disc(cx, cy, r, c) {
+    ctx.fillStyle = c;
+    for (let y = -r; y <= r; y++) {
+      const dx = Math.floor(Math.sqrt(Math.max(0, r * r + r * 0.5 - y * y)));
+      ctx.fillRect(cx - dx, cy + y, dx * 2 + 1, 1);
+    }
+  }
+  function ring(cx, cy, r, c) {
+    ctx.fillStyle = c;
+    for (let a = 0; a < 360; a += 3) {
+      const rad = a * Math.PI / 180;
+      ctx.fillRect(Math.round(cx + Math.cos(rad) * r), Math.round(cy + Math.sin(rad) * r), 1, 1);
+    }
+  }
+  function lineP(x0, y0, x1, y1, c) {
+    x0 |= 0; y0 |= 0; x1 |= 0; y1 |= 0;
+    const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    let err = dx - dy;
+    ctx.fillStyle = c;
+    for (;;) {
+      ctx.fillRect(x0, y0, 1, 1);
+      if (x0 === x1 && y0 === y1) break;
+      const e2 = 2 * err;
+      if (e2 > -dy) { err -= dy; x0 += sx; }
+      if (e2 < dx) { err += dx; y0 += sy; }
+    }
+  }
+  const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  function smooth(v, a, b) { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
+  function hash(i) { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+
+  /* ---- 1-bit pixel text (renders any font, then thresholds to hard pixels) ---- */
+  const tcv = document.createElement('canvas');
+  const tcx = tcv.getContext('2d', { willReadFrequently: true });
+  const glyphCache = new Map();
+  const FONT = s => `${s}px "Zpix","Silkscreen",ui-monospace,Menlo,monospace`;
+  function glyphs(str, size) {
+    const key = size + '|' + str;
+    const hit = glyphCache.get(key);
+    if (hit) return hit;
+    tcx.font = FONT(size);
+    const w = Math.max(1, Math.ceil(tcx.measureText(str).width) + 2);
+    const h = size + 5;
+    tcv.width = w; tcv.height = h;
+    tcx.font = FONT(size);
+    tcx.textBaseline = 'top';
+    tcx.clearRect(0, 0, w, h);
+    tcx.fillStyle = '#fff';
+    tcx.fillText(str, 1, 2);
+    const d = tcx.getImageData(0, 0, w, h).data;
+    const pts = [];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 112) pts.push(x, y);
+    const g = { pts, w, h };
+    glyphCache.set(key, g);
+    return g;
+  }
+  function text(str, x, y, c, size = 11, align = 'left') {
+    const g = glyphs(str, size);
+    const ox = align === 'center' ? x - (g.w >> 1) : align === 'right' ? x - g.w : x;
+    ctx.fillStyle = c;
+    for (let i = 0; i < g.pts.length; i += 2) ctx.fillRect((ox + g.pts[i]) | 0, (y + g.pts[i + 1]) | 0, 1, 1);
+  }
+  const textW = (s, size) => glyphs(s, size).w;
+
+  /* ================= the sentence (loop script) ================= */
+  const ACTS = [
+    { clock: '09:00', cap: '打卡 · 入狱',                 mad: .06, sky: '#7fb4cf', dur: 3.4 },
+    { clock: '11:00', cap: '需求改了第三版',               mad: .24, sky: '#9ec9dd', dur: 3.4 },
+    { clock: '14:00', cap: '今天第四个会 · 仍无结论',       mad: .45, sky: '#c9cfc0', dur: 3.6 },
+    { clock: '17:00', cap: '"五点半能走吧？"',             mad: .62, sky: '#dfa05e', dur: 3.4 },
+    { clock: '20:00', cap: '加班 · 理智库存不足',          mad: .84, sky: '#49527f', dur: 3.6 },
+    { clock: '23:59', cap: '啊啊啊啊啊啊啊啊啊啊',         mad: 1.0, sky: '#141c33', dur: 4.2 },
+    { clock: '06:00', cap: '新的一天 · 继续服刑',          mad: .08, sky: '#2b3a5c', dur: 2.2 },
+  ];
+  const TOTAL = ACTS.reduce((s, a) => s + a.dur, 0);
+
+  /* ================= state ================= */
+  let t = 0, last = performance.now(), paused = false;
+  let day = 1, lastAct = 0, extra = 0, flash = 0, rejected = 0;
+  const bits = [];     // flying debris / symbols
+  const SYM = ['#', '@', '%', '&', '?', '!', '$', '需', '改', '急', '催'];
+
+  function spawnBits(n, x, y, pow) {
+    for (let i = 0; i < n; i++) bits.push({
+      x, y,
+      vx: (Math.random() - .5) * pow * 2,
+      vy: -Math.random() * pow - .6,
+      ch: SYM[(Math.random() * SYM.length) | 0],
+      life: 1, rot: Math.random() * 6,
+      c: Math.random() < .3 ? P.red : Math.random() < .5 ? P.amber : P.white,
+    });
+  }
+
+  function actAt(time) {
+    let acc = 0;
+    for (let i = 0; i < ACTS.length; i++) {
+      if (time < acc + ACTS[i].dur) return { i, p: (time - acc) / ACTS[i].dur };
+      acc += ACTS[i].dur;
+    }
+    return { i: ACTS.length - 1, p: 1 };
+  }
+
+  /* ================= scene pieces ================= */
+
+  function drawWall(mad, sky, cur) {
+    fr(0, 16, W, 112, P.wall);
+    // panel seams of the cubicle cell
+    for (let x = 0; x < W; x += 24) fr(x, 16, 1, 112, P.wallD);
+    fr(0, 124, W, 4, P.wallD);
+    // fabric speckle
+    for (let i = 0; i < 420; i++) {
+      const h1 = hash(i), h2 = hash(i + 99);
+      pt(h1 * W, 16 + h2 * 108, h1 > .5 ? P.wallL : P.wallD);
+    }
+    // grime that creeps in as the day rots
+    const gr = smooth(mad, .3, 1);
+    for (let i = 0; i < 160 * gr; i++) {
+      const h1 = hash(i + 500), h2 = hash(i + 700);
+      pt(h1 * W, 16 + h2 * h2 * 108, P.grime);
+    }
+    // cubicle side dividers = the cell walls
+    fr(0, 16, 6, 112, P.wallD); fr(6, 16, 1, 112, P.grime);
+    fr(W - 6, 16, 6, 112, P.wallD); fr(W - 7, 16, 1, 112, P.grime);
+
+    drawLamp(mad);
+    drawWindow(sky, mad);
+    drawClock(mad, cur);
+    drawTally();
+    drawPoster(mad);
+  }
+
+  function drawLamp(mad) {
+    const flick = (hash(Math.floor(t * 18)) < .12 * (0.3 + mad)) ? 0 : 1;
+    fr(96, 16, 52, 2, P.metalD);
+    fr(98, 18, 48, 3, flick ? '#fff6d8' : P.metalD);
+    fr(98, 21, 48, 1, flick ? P.amberD : P.metalD);
+    if (flick) {
+      ctx.globalAlpha = .07 + mad * .03;
+      ctx.fillStyle = '#ffe9b0';
+      for (let i = 0; i < 26; i++) ctx.fillRect(98 - i * 1.2, 22 + i * 2, 48 + i * 2.4, 2);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function drawWindow(sky, mad) {
+    const x = 150, y = 26, w = 52, h = 40;
+    fr(x - 2, y - 2, w + 4, h + 4, P.metalD);
+    fr(x, y, w, h, sky);
+    // skyline + night stars
+    const night = smooth(mad, .55, .9);
+    for (let i = 0; i < 9; i++) {
+      const bw = 5 + Math.floor(hash(i * 3) * 7);
+      const bh = 8 + Math.floor(hash(i * 5 + 1) * 16);
+      const bx = x + 1 + i * 6;
+      if (bx + bw > x + w - 1) continue;
+      fr(bx, y + h - bh, bw, bh, night > .5 ? '#1a2038' : '#5e6c86');
+      for (let wy = y + h - bh + 2; wy < y + h - 2; wy += 3)
+        for (let wx = bx + 1; wx < bx + bw - 1; wx += 2)
+          if (hash(wx * 7 + wy * 13 + Math.floor(t * 0.6)) < (night > .5 ? .5 : .12))
+            pt(wx, wy, night > .5 ? P.amber : '#7e8aa2');
+    }
+    if (night > .4) for (let i = 0; i < 12; i++) {
+      const sx = x + 2 + hash(i * 11) * (w - 4), sy = y + 2 + hash(i * 17) * (h * .5);
+      if (hash(i + Math.floor(t * 2)) > .25) pt(sx, sy, P.white);
+    }
+    // frame + the bars
+    box(x, y, w, h, P.metal);
+    fr(x, y + h / 2 | 0, w, 1, P.metal);
+    for (let i = 1; i <= 3; i++) {
+      const bx = x + i * (w / 4) | 0;
+      fr(bx, y, 2, h, P.metalD);
+      fr(bx, y, 1, h, P.metalL);
+    }
+    fr(x - 2, y + h + 2, w + 4, 2, P.metal);
+  }
+
+  function drawClock(mad, cur) {
+    const cx = 78, cy = 44, r = 12;
+    const tilt = Math.round(smooth(mad, .6, 1) * 3);
+    disc(cx, cy + tilt, r + 1, P.metalD);
+    disc(cx, cy + tilt, r, P.bone);
+    ring(cx, cy + tilt, r, P.metal);
+    for (let i = 0; i < 12; i++) {
+      const a = i * Math.PI / 6;
+      pt(cx + Math.round(Math.cos(a) * (r - 3)), cy + tilt + Math.round(Math.sin(a) * (r - 3)), P.metalD);
+    }
+    // hands spin faster and faster — time is the warden
+    const speed = 1.6 + mad * 16;
+    const am = t * speed, ah = t * speed / 12 + 1;
+    lineP(cx, cy + tilt, cx + Math.cos(am) * (r - 4), cy + tilt + Math.sin(am) * (r - 4), P.void);
+    lineP(cx, cy + tilt, cx + Math.cos(ah) * (r - 7), cy + tilt + Math.sin(ah) * (r - 7), P.void);
+    pt(cx, cy + tilt, P.red);
+    // digital readout under the clock
+    text(cur.clock, cx, cy + tilt + r + 4, mad > .8 ? P.red : P.crtD, 8, 'center');
+  }
+
+  function drawTally() {
+    // one scratch per served day
+    const n = ((day - 1) % 30);
+    const bx = 100, by = 30;
+    for (let i = 0; i < n; i++) {
+      const g = Math.floor(i / 5), k = i % 5;
+      const gx = bx + (g % 6) * 8, gy = by + Math.floor(g / 6) * 12;
+      if (k < 4) fr(gx + k * 2, gy, 1, 8, P.wallHi);
+      else lineP(gx - 1, gy + 8, gx + 7, gy, P.wallHi);
+    }
+  }
+
+  function drawPoster(mad) {
+    const x = 16, y = 70, w = 26, h = 20;
+    fr(x, y, w, h, P.paper);
+    box(x, y, w, h, P.paperD);
+    const gone = mad > .72;
+    // tiny motivational lie, which gives up at night
+    text(gone ? '逃' : '加油', x + w / 2, y + 4, gone ? P.red : P.amberD, 11, 'center');
+    fr(x + 4, y + h - 5, w - 8, 1, P.paperD);
+    if (gone) { // torn corner
+      fr(x + w - 6, y, 6, 5, P.wall);
+      lineP(x + w - 7, y, x + w, y + 6, P.paperD);
+    }
+  }
+
+  function drawFloorAndPlant(mad) {
+    fr(0, 128, W, 52, P.floor);
+    for (let x = -40; x < W + 40; x += 16) lineP(x, 128, x - 26, 180, P.floorD);
+    for (let y = 132; y < 180; y += 6) fr(0, y, W, 1, P.floorD);
+    for (let i = 0; i < 90; i++) pt(hash(i + 31) * W, 128 + hash(i + 71) * 52, P.floorL);
+
+    // the office plant: a fellow inmate, slowly dying
+    const wilt = smooth(mad, .2, 1);
+    const px0 = 22, py0 = 134;
+    fr(px0, py0 - 12, 18, 12, P.deskD);
+    fr(px0 + 1, py0 - 12, 16, 2, P.desk);
+    fr(px0 + 2, py0 - 11, 14, 1, P.deskL);
+    const stem = px0 + 9;
+    fr(stem, py0 - 24, 1, 12, P.leafD);
+    for (let i = 0; i < 5; i++) {
+      const dir = i % 2 ? 1 : -1;
+      const ly = py0 - 22 - i * 2;
+      const droop = Math.round(wilt * (2 + i));
+      const col = wilt > .55 ? P.leafDry : wilt > .25 ? P.leafD : P.leaf;
+      for (let k = 1; k <= 5 - i * .5; k++) pt(stem + dir * k, ly + Math.round(k * .4) + droop, col);
+    }
+    if (wilt > .7) for (let i = 0; i < 3; i++) pt(px0 + 3 + i * 6, py0 + 1, P.leafDry);
+  }
+
+  function drawDesk() {
+    // legs
+    fr(60, 113, 4, 34, P.metalD); fr(60, 113, 1, 34, P.metal);
+    fr(W - 64, 113, 4, 34, P.metalD); fr(W - 64, 113, 1, 34, P.metal);
+    fr(56, 147, 12, 2, P.metalD); fr(W - 68, 147, 12, 2, P.metalD);
+    // drop shadow on the floor
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.fillRect(50, 145, 142, 4);
+    // top face
+    fr(52, 108, 140, 5, P.deskL);
+    fr(52, 108, 140, 1, P.deskHi);
+    fr(52, 113, 140, 14, P.desk);
+    fr(52, 126, 140, 2, P.deskD);
+    // wood grain
+    for (let i = 0; i < 46; i++) {
+      const gx = 53 + hash(i * 13) * 136, gy = 114 + hash(i * 29) * 11;
+      fr(gx, gy, 1 + hash(i) * 5, 1, hash(i + 5) > .5 ? P.deskD : P.deskL);
+    }
+    // drawer
+    box(150, 116, 34, 9, P.deskD);
+    fr(164, 120, 6, 1, P.deskHi);
+  }
+
+  function drawMonitor(mad, actIdx) {
+    const x = 148, y = 70, w = 48, h = 38;
+    // glow spill
+    const glowC = mad > .9 ? 'rgba(228,68,58,.16)' : mad > .6 ? 'rgba(242,169,59,.12)' : 'rgba(110,245,138,.1)';
+    ctx.fillStyle = glowC;
+    for (let i = 1; i <= 7; i++) ctx.fillRect(x - i * 2, y - i, w + i * 4, h + i * 2);
+    // stand + case
+    fr(x + 18, y + h, 12, 4, P.metalD);
+    fr(x + 12, y + h + 4, 24, 2, P.metal);
+    fr(x - 2, y - 2, w + 4, h + 4, P.metal);
+    fr(x - 2, y - 2, w + 4, 1, P.metalL);
+    fr(x - 2, y + h + 1, w + 4, 1, P.metalD);
+    // screen
+    const sx = x + 2, sy = y + 2, sw = w - 4, sh = h - 8;
+    fr(sx, sy, sw, sh, '#07100b');
+    const jit = mad > .85 ? Math.round(hash(Math.floor(t * 30)) * 2 - 1) : 0;
+    if (mad < .9) {
+      // lines of code, getting redder
+      for (let r = 0; r < 7; r++) {
+        const seed = r + Math.floor(t * (1.5 + mad * 5));
+        const len = 4 + Math.floor(hash(seed) * (sw - 10));
+        const bad = hash(seed + 44) < mad * .55;
+        fr(sx + 2 + jit, sy + 2 + r * 4, len, 2, bad ? P.redD : P.crtD);
+        if (hash(seed + 7) > .55) fr(sx + 3 + len + jit, sy + 2 + r * 4, 3, 2, bad ? P.red : P.crt);
+      }
+      if (mad > .5) text('救命', sx + sw / 2, sy + sh - 12, P.red, 11, 'center');
+    } else {
+      // full meltdown
+      fr(sx, sy, sw, sh, hash(Math.floor(t * 20)) > .5 ? P.redD : '#2a0a08');
+      for (let r = 0; r < 6; r++) {
+        const yy = sy + ((Math.floor(t * 40) + r * 5) % sh);
+        fr(sx, yy, sw, 1, P.red);
+      }
+      text('ERROR', sx + sw / 2 + jit, sy + 4, P.white, 8, 'center');
+      text('一切都是', sx + sw / 2 + jit, sy + 12, P.blood, 11, 'center');
+      text('你的责任', sx + sw / 2 + jit, sy + 22, P.blood, 11, 'center');
+    }
+    // scanline sheen
+    ctx.fillStyle = 'rgba(0,0,0,.22)';
+    for (let yy = sy; yy < sy + sh; yy += 2) ctx.fillRect(sx, yy, sw, 1);
+  }
+
+  function drawProps(mad, actIdx) {
+    // paper mountain, grows with the sentence
+    const stack = Math.round(lerp(2, 20, smooth(mad, .05, .95)));
+    for (let i = 0; i < stack; i++) {
+      const off = Math.round((hash(i * 23) - .5) * 3);
+      fr(62 + off, 107 - i * 2, 20, 2, i % 2 ? P.paper : P.paperD);
+    }
+    if (stack > 6) text('待办', 72, 105 - stack * 2 - 10, P.amber, 11, 'center');
+
+    // mug — tips over at full madness
+    const tipped = mad > .95;
+    const mx = 128, my = 100;
+    if (!tipped) {
+      fr(mx, my, 9, 8, P.white); fr(mx, my, 9, 1, P.bone);
+      fr(mx + 1, my + 1, 7, 2, '#52331f');
+      fr(mx + 9, my + 2, 2, 4, P.white); fr(mx + 10, my + 3, 1, 2, P.bone);
+      if (mad < .8) for (let i = 0; i < 3; i++) {
+        const sy2 = my - 3 - ((Math.floor(t * 8) + i * 3) % 8);
+        pt(mx + 3 + Math.round(Math.sin(t * 4 + i) * 2), sy2, P.gray);
+      }
+    } else {
+      fr(mx - 1, my + 4, 8, 4, P.white);
+      fr(mx + 6, my + 5, 2, 2, P.bone);
+      fr(mx - 8, my + 7, 16, 1, '#52331f');
+      fr(mx - 5, my + 8, 10, 1, '#3b2415');
+    }
+
+    // keyboard
+    fr(94, 103, 34, 5, P.metal);
+    fr(94, 103, 34, 1, P.metalL);
+    fr(94, 108, 34, 1, P.metalD);
+    for (let i = 0; i < 11; i++) {
+      const keyUp = mad > .95 ? hash(i + Math.floor(t * 12)) > .75 : false;
+      if (!keyUp) fr(96 + i * 3, 104, 2, 3, P.metalD);
+      else pt(96 + i * 3, 100 - Math.round(hash(i) * 4), P.metalL);
+    }
+  }
+
+  function drawWorker(mad) {
+    const cx = 108;
+    const rage = smooth(mad, .86, 1);
+    const twitch = mad > .3 ? Math.round(Math.sin(t * (9 + mad * 26)) * mad * 1.4) : 0;
+    const droop = Math.round(smooth(mad, .18, .7) * 5);
+    const breathe = Math.round(Math.sin(t * 2.2) * .6);
+    const quake = rage > 0 ? Math.round((hash(Math.floor(t * 34)) - .5) * 3 * rage) : 0;
+
+    const hx = cx + twitch + quake;
+    const hy = 68 + droop + breathe - Math.round(rage * 7);
+
+    // chair back behind
+    fr(cx - 16, 82, 32, 28, P.metalD);
+    fr(cx - 16, 82, 32, 2, P.metal);
+    fr(cx - 14, 84, 28, 24, '#352f44');
+    for (let i = 0; i < 40; i++) pt(cx - 14 + hash(i * 3) * 28, 84 + hash(i * 7) * 24, P.metalD);
+
+    /* ---- arms: typing -> flailing ---- */
+    const armPose = (sideSign) => {
+      const sh = { x: cx + sideSign * 11, y: 94 - Math.round(rage * 6) };
+      const typeBob = Math.round(Math.sin(t * 11 + (sideSign > 0 ? 1.7 : 0)) * .9 + .5);
+      const rest = { ex: cx + sideSign * 17, ey: 102, hxp: cx + sideSign * 10, hyp: 101 + typeBob };
+      const up = {
+        ex: cx + sideSign * 20, ey: 84 - Math.round(rage * 6),
+        hxp: cx + sideSign * (22 + Math.round(Math.sin(t * 18) * 3)),
+        hyp: 66 - Math.round(rage * 6) + Math.round(Math.cos(t * 21) * 3),
+      };
+      return {
+        sx: sh.x, sy: sh.y,
+        ex: Math.round(lerp(rest.ex, up.ex, rage)), ey: Math.round(lerp(rest.ey, up.ey, rage)),
+        hx: Math.round(lerp(rest.hxp, up.hxp, rage)), hy: Math.round(lerp(rest.hyp, up.hyp, rage)),
+      };
+    };
+    for (const sgn of [-1, 1]) {
+      const a = armPose(sgn);
+      lineP(a.sx, a.sy, a.ex, a.ey, P.shirtD);
+      lineP(a.sx, a.sy + 1, a.ex, a.ey + 1, P.shirt);
+      lineP(a.ex, a.ey, a.hx, a.hy, P.shirtD);
+      lineP(a.ex, a.ey + 1, a.hx, a.hy + 1, P.shirt);
+      fr(a.hx - 1, a.hy, 3, 3, P.skin);
+      pt(a.hx - 1, a.hy, P.skinL);
+    }
+
+    /* ---- torso ---- */
+    const by = 88 - Math.round(rage * 7);
+    fr(cx - 11, by, 22, 113 - by, P.shirt);
+    fr(cx - 11, by, 3, 113 - by, P.shirtD);
+    fr(cx + 8, by, 3, 113 - by, P.shirtL);     // monitor-side rim light
+    // collar + tie
+    fr(cx - 5, by, 10, 3, P.white);
+    lineP(cx - 5, by, cx - 1, by + 4, P.shirtD);
+    lineP(cx + 5, by, cx + 1, by + 4, P.shirtD);
+    const tieSkew = Math.round(rage * 6 + smooth(mad, .5, .9) * 2);
+    fr(cx - 1 + tieSkew, by + 3, 3, 3, P.tieL);
+    for (let i = 0; i < 12; i++) {
+      const w2 = 2 + Math.floor(i / 4);
+      fr(cx - 1 + Math.round(tieSkew * (1 + i * .12)), by + 6 + i, w2, 1, i % 3 ? P.tie : P.tieL);
+    }
+    // badge on a lanyard = inmate ID
+    fr(cx + 4, by + 9, 5, 7, P.paper);
+    pt(cx + 6, by + 11, P.red);
+
+    /* ---- head ---- */
+    const hw = 18, hh = 20;
+    const hl = hx - 9;
+    fr(hl, hy, hw, hh, P.skin);
+    fr(hl, hy, 3, hh, P.skinD);              // shade away from the screen
+    fr(hl + hw - 2, hy, 2, hh, P.skinL);     // lit by the monitor
+    fr(hl + 2, hy + hh, 14, 2, P.skinD);     // neck/jaw
+    fr(hx - 3, hy + hh, 6, 2, P.skin);
+    // ears
+    pt(hl - 1, hy + 10, P.skinD); pt(hl + hw, hy + 10, P.skinD);
+
+    // hair: flat -> electrified
+    const spikes = Math.round(smooth(mad, .35, 1) * 9);
+    fr(hl, hy - 1, hw, 5, P.hair);
+    fr(hl + 1, hy - 1, hw - 4, 1, P.hairL);
+    for (let i = 0; i < spikes; i++) {
+      const sxp = hl + 1 + Math.floor(hash(i * 9) * (hw - 2));
+      const len = 2 + Math.floor(hash(i * 5 + 3) * 5 * smooth(mad, .4, 1));
+      const sway = Math.round(Math.sin(t * 13 + i) * mad);
+      lineP(sxp, hy - 1, sxp + sway, hy - 1 - len, P.hair);
+    }
+
+    // glasses + eyes
+    const eyeY = hy + 9;
+    const openness = mad > .9 ? 5 : mad > .5 ? 4 : 3;
+    const blink = (hash(Math.floor(t * 2.2)) < .1 && mad < .85) ? 1 : 0;
+    for (const sgn of [-1, 1]) {
+      const ex = hx + sgn * 4;
+      // asymmetry is where madness lives
+      const grow = sgn > 0 ? Math.round(smooth(mad, .55, 1)) : 0;
+      const w2 = 5 + grow, h2 = (blink ? 1 : openness + grow);
+      fr(ex - (w2 >> 1), eyeY, w2, h2, P.white);
+      if (!blink) {
+        const pupil = Math.max(1, 2 - Math.round(smooth(mad, .5, 1)));
+        const dartX = mad > .6 ? Math.round(Math.sin(t * 15 + sgn) * 1.4) : 0;
+        fr(ex - (pupil >> 1) + dartX, eyeY + 1 + (grow ? 1 : 0), pupil, pupil + 1, P.void);
+        // bloodshot
+        if (mad > .52) {
+          pt(ex - (w2 >> 1), eyeY + 1, P.red);
+          pt(ex + (w2 >> 1) - 1, eyeY + h2 - 1, P.red);
+          if (mad > .8) pt(ex - (w2 >> 1) + 1, eyeY + h2 - 1, P.blood);
+        }
+      } else fr(ex - (w2 >> 1), eyeY, w2, 1, P.skinD);
+      // glasses frame
+      box(ex - (w2 >> 1) - 1, eyeY - 1, w2 + 2, (blink ? 3 : openness + grow + 2), P.metalD);
+      // eye bags
+      if (mad > .25) fr(ex - 2, eyeY + openness + grow + 1, 5, 1, P.skinD);
+      if (mad > .6) fr(ex - 2, eyeY + openness + grow + 2, 4, 1, P.skinD);
+    }
+    fr(hx - 1, eyeY + 1, 3, 1, P.metalD);                    // bridge
+    if (mad > .95) lineP(hx + 2, eyeY - 1, hx + 7, eyeY + 4, P.white);  // cracked lens
+
+    // brows
+    const browLift = Math.round(smooth(mad, .5, 1) * 2);
+    fr(hx - 8, eyeY - 3 - browLift, 5, 1, P.hair);
+    fr(hx + 3, eyeY - 3 - browLift + (mad > .6 ? 1 : 0), 5, 1, P.hair);
+
+    // vein
+    if (mad > .62) {
+      const vc = hash(Math.floor(t * 8)) > .4 ? P.red : P.redD;
+      lineP(hx - 7, hy + 3, hx - 5, hy + 5, vc);
+      lineP(hx - 5, hy + 5, hx - 7, hy + 7, vc);
+    }
+
+    // mouth: line -> wobble -> scream
+    const my = hy + 15;
+    if (mad < .3) {
+      fr(hx - 3, my, 7, 1, P.skinD);
+    } else if (mad < .62) {
+      for (let i = 0; i < 8; i++) pt(hx - 4 + i, my + (i % 2), P.skinD);
+    } else if (mad < .86) {
+      fr(hx - 4, my - 1, 9, 3, P.skinD);
+      fr(hx - 3, my, 7, 1, '#5b2420');
+    } else {
+      const ow = 9 + Math.round(Math.sin(t * 16) * 2);
+      const oh = 6 + Math.round(Math.sin(t * 13) * 2);
+      fr(hx - (ow >> 1), my - 2, ow, oh, '#4a1512');
+      fr(hx - (ow >> 1) + 1, my - 1, ow - 2, 1, P.white);     // top teeth
+      fr(hx - (ow >> 1) + 1, my - 3 + oh, ow - 2, 1, P.white);
+      fr(hx - 1, my + 1, 3, 2, P.blood);                      // tongue
+    }
+
+    // sweat
+    if (mad > .42) {
+      const n = 1 + Math.floor(mad * 3);
+      for (let i = 0; i < n; i++) {
+        const ph = (t * 1.5 + i * .37) % 1;
+        const sxp = hx + (i % 2 ? 11 : -11) + Math.round(hash(i) * 2);
+        fr(sxp, hy + 2 + ph * 16, 1, 2, '#9fd8e8');
+      }
+    }
+
+    // scream glyphs orbiting the skull
+    if (mad > .9) {
+      for (let i = 0; i < 7; i++) {
+        const a = t * 3 + i * (Math.PI * 2 / 7);
+        const rr = 20 + Math.sin(t * 5 + i) * 5;
+        text('啊', hx + Math.cos(a) * rr * 1.5, hy - 4 + Math.sin(a) * rr * .5,
+          i % 2 ? P.white : P.amber, 11, 'center');
+      }
+      // speed lines
+      for (let i = 0; i < 10; i++) {
+        const a = hash(i + Math.floor(t * 12)) * Math.PI * 2;
+        const r0 = 24 + hash(i) * 6;
+        lineP(hx + Math.cos(a) * r0, hy + 8 + Math.sin(a) * r0 * .6,
+          hx + Math.cos(a) * (r0 + 7), hy + 8 + Math.sin(a) * (r0 + 7) * .6, P.white);
+      }
+    }
+  }
+
+  function drawBits(dt) {
+    for (let i = bits.length - 1; i >= 0; i--) {
+      const b = bits[i];
+      if (!paused) {
+        b.x += b.vx; b.y += b.vy; b.vy += .14; b.life -= dt * .5;
+      }
+      if (b.life <= 0 || b.y > 178) { bits.splice(i, 1); continue; }
+      text(b.ch, b.x, b.y, b.life < .35 && Math.floor(t * 12) % 2 ? P.gray : b.c, 11, 'center');
+    }
+  }
+
+  /* ---- bars slide in during the breakdown: the cell is real ---- */
+  function drawBars(mad) {
+    const a = smooth(mad, .88, 1);
+    if (a <= 0) return;
+    ctx.globalAlpha = a * .82;
+    for (let x = 4; x < W; x += 26) {
+      const h = Math.round(164 * a);
+      fr(x, 16, 5, h, P.void);
+      fr(x, 16, 1, h, '#1e1a2a');
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawHUD(mad, cur, actIdx) {
+    // top bar
+    fr(0, 0, W, 16, P.void);
+    fr(0, 15, W, 1, P.crtD);
+    text('CELL 404', 4, 4, P.crtD, 8);
+    text('刑期 无期', 58, 3, mad > .8 ? P.red : P.gray, 11);
+    text('第 ' + day + ' 日', 112, 3, P.amber, 11);
+
+    // sanity meter
+    const sanity = clamp(1 - mad, 0, 1);
+    const bw = 44;
+    text('理智', 160, 3, P.gray, 11);
+    box(186, 4, bw + 2, 8, P.metal);
+    const fill = Math.round(bw * sanity);
+    const c = sanity > .6 ? P.crt : sanity > .3 ? P.amber : P.red;
+    for (let i = 0; i < fill; i += 2) fr(187 + i, 6, 2, 4, c);
+    if (sanity < .25 && Math.floor(t * 6) % 2) fr(187, 6, bw, 4, P.redD);
+
+    // bottom caption plate
+    fr(0, 160, W, 20, P.void);
+    fr(0, 160, W, 1, P.crtD);
+    const cap = rejected > 0 ? '申请被驳回 · 理由：业务需要' : cur.cap;
+    const capC = rejected > 0 ? P.red : (actIdx === 5 ? P.blood : actIdx === 6 ? P.crt : P.bone);
+    const shake = actIdx === 5 ? Math.round((hash(Math.floor(t * 20)) - .5) * 2) : 0;
+    text(cap, W / 2 + shake, 164, capC, 11, 'center');
+
+    // blinking cursor
+    if (Math.floor(t * 3) % 2) fr(W / 2 + textW(cap, 11) / 2 + 3, 165, 4, 8, P.crtD);
+  }
+
+  /* ================= main loop ================= */
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000);
+    last = now;
+    if (!paused) t += dt;
+
+    const loopT = t % TOTAL;
+    const { i: ai, p } = actAt(loopT);
+    const cur = ACTS[ai];
+    const prev = ACTS[(ai - 1 + ACTS.length) % ACTS.length];
+
+    // a new day begins — scratch the wall
+    if (ai !== lastAct) {
+      if (ai === 0 || (lastAct === 5 && ai === 6)) { /* mid-loop */ }
+      if (lastAct === 6 && ai === 0) { day++; flash = 1; dayTag.innerHTML = '第 <b>' + day + '</b> 日'; }
+      if (ai === 5) { spawnBits(26, 108, 86, 3.4); flash = .6; }
+      lastAct = ai;
+    }
+
+    extra = Math.max(0, extra - dt * .35);
+    rejected = Math.max(0, rejected - dt);
+    flash = Math.max(0, flash - dt * 2.2);
+
+    const mad = clamp(lerp(prev.mad, cur.mad, smooth(p, 0, .8)) + extra, 0, 1);
+    if (mad > .9 && Math.random() < .25) spawnBits(1, 108 + (Math.random() - .5) * 30, 82, 2.4);
+
+    /* ---- render ---- */
+    ctx.fillStyle = P.void;
+    ctx.fillRect(0, 0, W, H);
+
+    // whole-room quake at peak madness
+    const q = smooth(mad, .9, 1);
+    const qx = q ? Math.round((hash(Math.floor(t * 26)) - .5) * 4 * q) : 0;
+    const qy = q ? Math.round((hash(Math.floor(t * 26) + 7) - .5) * 3 * q) : 0;
+    ctx.save();
+    ctx.translate(qx, qy);
+
+    drawWall(mad, cur.sky, cur);
+    drawFloorAndPlant(mad);
+    drawWorker(mad);
+    drawDesk();
+    drawMonitor(mad, ai);
+    drawProps(mad, ai);
+    drawBits(dt);
+    drawBars(mad);
+
+    // monitor light wash over the whole room
+    ctx.fillStyle = mad > .9 ? 'rgba(228,68,58,.08)' : mad > .6 ? 'rgba(242,169,59,.05)' : 'rgba(110,245,138,.04)';
+    ctx.fillRect(0, 16, W, 144);
+
+    ctx.restore();
+
+    // 发疯 stamp
+    if (mad > .96 && Math.floor(t * 8) % 2) {
+      const bx = W / 2, by = 40;
+      ctx.fillStyle = 'rgba(0,0,0,.6)';
+      ctx.fillRect(bx - 34, by - 4, 68, 24);
+      text('发疯', bx, by, P.blood, 22, 'center');
+    }
+    if (ai === 6) {
+      ctx.fillStyle = 'rgba(0,0,0,' + (0.62 * (1 - smooth(p, .55, 1))) + ')';
+      ctx.fillRect(0, 0, W, H);
+      if (p < .8) text('DAY ' + (day + 1), W / 2, 86, P.crt, 22, 'center');
+    }
+    if (flash > 0) {
+      ctx.fillStyle = 'rgba(255,240,230,' + (flash * .5) + ')';
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    drawHUD(mad, cur, ai);
+
+    requestAnimationFrame(frame);
+  }
+
+  /* ================= controls ================= */
+  const dayTag = document.getElementById('dayTag');
+  const btnPause = document.getElementById('btnPause');
+  const poke = (n = 1) => {
+    extra = Math.min(.45, extra + .12 * n);
+    spawnBits(5 * n, 70 + Math.random() * 100, 100, 2.6);
+  };
+  document.getElementById('btnTask').onclick = () => poke(1);
+  document.getElementById('btnLeave').onclick = () => { rejected = 3.2; extra = Math.min(.5, extra + .2); spawnBits(14, 108, 90, 3); };
+  btnPause.onclick = () => { paused = !paused; btnPause.textContent = paused ? '继续' : '暂停'; };
+  cv.addEventListener('pointerdown', e => {
+    const r = cv.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+    extra = Math.min(.45, extra + .1);
+    spawnBits(6, x, y, 2.8);
+  });
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); btnPause.click(); }
+    if (e.key === 'r' || e.key === 'R') { t = 0; day = 1; bits.length = 0; extra = 0; lastAct = 0; dayTag.innerHTML = '第 <b>1</b> 日'; }
+  });
+
+  // warm the glyph cache so the first frames aren't bare
+  ['打卡 · 入狱', '救命', '发疯', '啊', '加油', '逃', '待办'].forEach(s => glyphs(s, 11));
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
